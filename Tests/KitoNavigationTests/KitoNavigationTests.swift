@@ -121,4 +121,51 @@ final class KitoNavigationTests: XCTestCase {
     func testSideMenuDefaultEdgeIsLeading() {
         XCTAssertEqual(KitoSideMenuViewModel().edge, .leading)
     }
+
+    // MARK: - Side menu maths
+
+    func testSideMenuProgressFollowsTheDrag() {
+        XCTAssertEqual(KitoSideMenuMath.progress(isOpen: false, translation: 0, width: 300), 0)
+        XCTAssertEqual(KitoSideMenuMath.progress(isOpen: false, translation: 150, width: 300), 0.5)
+        XCTAssertEqual(KitoSideMenuMath.progress(isOpen: true, translation: -75, width: 300), 0.75)
+    }
+
+    func testSideMenuProgressIsClamped() {
+        XCTAssertEqual(KitoSideMenuMath.progress(isOpen: false, translation: -80, width: 300), 0)
+        XCTAssertEqual(KitoSideMenuMath.progress(isOpen: true, translation: 500, width: 300), 1)
+        XCTAssertEqual(KitoSideMenuMath.progress(isOpen: true, translation: 0, width: 0), 1)
+    }
+
+    func testSideMenuSettlesPastHalfway() {
+        XCTAssertTrue(KitoSideMenuMath.settlesOpen(isOpen: false, predictedTranslation: 160, width: 300))
+        XCTAssertFalse(KitoSideMenuMath.settlesOpen(isOpen: false, predictedTranslation: 100, width: 300))
+        XCTAssertFalse(KitoSideMenuMath.settlesOpen(isOpen: true, predictedTranslation: -200, width: 300))
+        XCTAssertTrue(KitoSideMenuMath.settlesOpen(isOpen: true, predictedTranslation: -60, width: 300))
+    }
+
+    func testDrawerBehindStyles() {
+        XCTAssertEqual(KitoSideMenuStyle.allCases.filter(\.drawerIsBehind), [.reveal, .scale, .rotate3D])
+    }
+
+    // MARK: - Tab bar
+
+    func testFloatingTabStyles() {
+        XCTAssertEqual(KitoTabBarStyle.allCases.filter(\.floats), [.floating, .pill, .glass, .segmented])
+    }
+
+    func testTabBarShapeDipFollowsTheSelectedTab() {
+        let rect = CGRect(x: 0, y: 0, width: 400, height: 80)
+        let first = KitoTabBarShape(notchCenter: 0.125, horizontalInset: 0)
+        XCTAssertEqual(first.notchX(in: rect), 50)
+        XCTAssertEqual(KitoTabBarShape(notchCenter: 2, horizontalInset: 10).notchX(in: rect), 390)
+        let path = first.path(in: rect)
+        XCTAssertFalse(path.contains(CGPoint(x: 50, y: 10)), "the dip is cut out")
+        XCTAssertTrue(path.contains(CGPoint(x: 300, y: 10)))
+    }
+
+    func testTabBarShapeAnimatesItsDip() {
+        var shape = KitoTabBarShape(notchCenter: 0.2)
+        shape.animatableData = 0.8
+        XCTAssertEqual(shape.notchCenter, 0.8)
+    }
 }
