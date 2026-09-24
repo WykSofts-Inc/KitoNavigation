@@ -1,5 +1,7 @@
 # KitoNavigation
 
+**[Documentation](https://wyksofts-inc.github.io/KitoNavigation/documentation/kitonavigation/)**
+
 A typed, MVVM-friendly router for `NavigationStack` — push/pop/popToRoot,
 pop-to-a-specific-route, and a full-screen-cover slot for auth gates and
 onboarding, all driven by one `@Observable` router instead of scattered
