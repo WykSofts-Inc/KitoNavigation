@@ -133,7 +133,7 @@ public struct KitoDrawerItem: View {
                         .foregroundStyle(isSelected ? onAccent : (badgeTint ?? accent))
                 }
                 if showsChevron {
-                    Image(systemName: "chevron.right").font(.caption.weight(.bold)).foregroundStyle(isSelected ? onAccent.opacity(0.7) : Color.secondary)
+                    Image(systemName: "chevron.forward").font(.caption.weight(.bold)).foregroundStyle(isSelected ? onAccent.opacity(0.7) : Color.secondary)
                 }
             }
             .foregroundStyle(isSelected ? onAccent : Color.primary)

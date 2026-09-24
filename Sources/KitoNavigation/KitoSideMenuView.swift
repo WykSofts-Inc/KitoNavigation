@@ -57,7 +57,13 @@ private struct KitoSideMenuModifier<Menu: View>: ViewModifier {
     @ViewBuilder let menu: () -> Menu
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.layoutDirection) private var layoutDirection
+    /// Drag distance along the layout direction (positive = toward trailing), so the
+    /// math below stays semantic: drag values are physical, offsets mirror in RTL.
     @State private var translation: CGFloat = 0
+
+    /// Converts a physical drag width into the layout direction.
+    private func semantic(_ width: CGFloat) -> CGFloat { layoutDirection == .rightToLeft ? -width : width }
 
     private var sign: CGFloat { viewModel.edge == .leading ? 1 : -1 }
     private var progress: CGFloat { KitoSideMenuMath.progress(isOpen: viewModel.isOpen, translation: translation * sign, width: menuWidth) }
@@ -163,9 +169,9 @@ private struct KitoSideMenuModifier<Menu: View>: ViewModifier {
 
     private var dragGesture: some Gesture {
         DragGesture(minimumDistance: 12)
-            .onChanged { translation = $0.translation.width }
+            .onChanged { translation = semantic($0.translation.width) }
             .onEnded { value in
-                let open = KitoSideMenuMath.settlesOpen(isOpen: viewModel.isOpen, predictedTranslation: value.predictedEndTranslation.width * sign, width: menuWidth)
+                let open = KitoSideMenuMath.settlesOpen(isOpen: viewModel.isOpen, predictedTranslation: semantic(value.predictedEndTranslation.width) * sign, width: menuWidth)
                 withAnimation(animation) {
                     viewModel.isOpen = open
                     translation = 0

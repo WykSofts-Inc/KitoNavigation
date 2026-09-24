@@ -203,6 +203,14 @@ VStack(alignment: .leading, spacing: 22) {
 `KitoSideRail` is a slim column of icons with a sliding highlight, for a compact sidebar or a
 workspace switcher.
 
+## Right-to-left
+
+- Layout mirrors automatically: tab order, selection indicators, the bubble/notch dip, the side rail and top tabs.
+- The side menu's `edge` is semantic: `.leading` opens from the right in Arabic or Hebrew, and the drag-to-open/close
+  gesture follows the finger in both directions (drag values are physical, so they are converted to the layout direction).
+- Drawer row chevrons use `chevron.forward`, so they point the right way in RTL.
+- Nothing to do in your app beyond setting the locale or `\.layoutDirection`.
+
 ## License
 
 MIT
