@@ -96,6 +96,29 @@ final class KitoNavigationTests: XCTestCase {
         XCTAssertEqual(viewModel.badgeCount(for: "home"), 0)
     }
 
+    func testSetBadgeUpdatesCountAndKeepsSelection() {
+        let viewModel = KitoTabBarViewModel(items: tabItems(), selectedID: "search")
+        viewModel.setBadge(5, for: "home")
+        XCTAssertEqual(viewModel.badgeCount(for: "home"), 5)
+        XCTAssertEqual(viewModel.selectedID, "search")
+        viewModel.setBadge(-2, for: "home")
+        XCTAssertEqual(viewModel.badgeCount(for: "home"), 0)
+        viewModel.setBadge(1, for: "missing")
+        XCTAssertEqual(viewModel.items.map(\.badgeCount), [0, 0, 3])
+    }
+
+    func testReplacingItemsKeepsSelectionWhenStillPresent() {
+        let viewModel = KitoTabBarViewModel(items: tabItems(), selectedID: "profile")
+        viewModel.items = Array(tabItems().reversed())
+        XCTAssertEqual(viewModel.selectedID, "profile")
+    }
+
+    func testReplacingItemsFallsBackToFirstWhenSelectionRemoved() {
+        let viewModel = KitoTabBarViewModel(items: tabItems(), selectedID: "profile")
+        viewModel.items = Array(tabItems().prefix(2))
+        XCTAssertEqual(viewModel.selectedID, "home")
+    }
+
     // MARK: - KitoSideMenuViewModel
 
     func testSideMenuStartsClosedByDefault() {
