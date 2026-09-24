@@ -15,7 +15,16 @@ import KitoCore
 /// means, and which need different handling.
 @Observable
 public final class KitoTabBarViewModel: KitoViewModel {
-    public let items: [KitoTabItem]
+    /// The tabs, in order. Mutable so badges, titles or the tab set itself can
+    /// change without rebuilding the view model; the selection is kept when the
+    /// selected tab is still present, and falls back to the first tab otherwise.
+    public var items: [KitoTabItem] {
+        didSet {
+            if !items.isEmpty, !items.contains(where: { $0.id == selectedID }) {
+                selectedID = items[0].id
+            }
+        }
+    }
     public var selectedID: String
     public var onReselect: (String) -> Void
 
@@ -36,5 +45,14 @@ public final class KitoTabBarViewModel: KitoViewModel {
 
     public func badgeCount(for id: String) -> Int {
         items.first { $0.id == id }?.badgeCount ?? 0
+    }
+
+    /// Updates one tab's badge (e.g. a bag count). Negative counts are treated
+    /// as zero; unknown ids are ignored. The selection is unchanged.
+    public func setBadge(_ count: Int, for id: String) {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        let value = max(0, count)
+        guard items[index].badgeCount != value else { return }
+        items[index].badgeCount = value
     }
 }

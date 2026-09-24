@@ -342,6 +342,7 @@ public struct KitoSideRail<Header: View, Footer: View>: View {
     @ViewBuilder let header: () -> Header
     @ViewBuilder let footer: () -> Footer
     @Namespace private var namespace
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public init(items: [KitoTabItem], selection: Binding<String>, tint: Color? = nil,
                 @ViewBuilder header: @escaping () -> Header, @ViewBuilder footer: @escaping () -> Footer) {
@@ -360,7 +361,7 @@ public struct KitoSideRail<Header: View, Footer: View>: View {
             header().padding(.bottom, 10)
             ForEach(items) { item in
                 let selected = item.id == selection
-                Button { withAnimation(.spring(response: 0.35, dampingFraction: 0.78)) { selection = item.id } } label: {
+                Button { withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.78)) { selection = item.id } } label: {
                     Image(systemName: selected ? (item.selectedSystemImage ?? item.systemImage) : item.systemImage)
                         .font(.system(size: 19, weight: .semibold))
                         .foregroundStyle(selected ? onAccent : Color.secondary)
@@ -410,6 +411,7 @@ public struct KitoTopTabs: View {
     let style: KitoTopTabsStyle
     let tint: Color?
     @Namespace private var namespace
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public init(_ titles: [String], selection: Binding<String>, style: KitoTopTabsStyle = .underline, tint: Color? = nil) {
         self.titles = titles
@@ -436,13 +438,14 @@ public struct KitoTopTabs: View {
                 }
             }
             .overlay(alignment: .bottom) { if style == .underline { Divider() } }
-            .onChange(of: selection) { _, value in withAnimation(.snappy) { proxy.scrollTo(value, anchor: .center) } }
+            .onChange(of: selection) { _, value in withAnimation(reduceMotion ? nil : .snappy) { proxy.scrollTo(value, anchor: .center) } }
         }
     }
 
     private func tab(_ title: String) -> some View {
         let selected = title == selection
-        return Button { withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { selection = title } } label: {
+        // With Reduce Motion on, the indicator jumps to the new tab instead of sliding.
+        return Button { withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.8)) { selection = title } } label: {
             Text(title)
                 .font(.subheadline.weight(selected ? .semibold : .medium))
                 .foregroundStyle(foreground(selected))
